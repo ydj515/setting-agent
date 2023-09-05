@@ -44,3 +44,132 @@ You don’t have to ever use `eject`. The curated feature set is suitable for sm
 You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
 
 To learn React, check out the [React documentation](https://reactjs.org/).
+
+
+
+
+
+
+[nvm install]
+https://github.com/coreybutler/nvm-windows/releases/tag/1.1.11
+
+[node install]
+nvm install 16
+nvm install 12
+
+nvm ls
+
+nvm use 16.20.2
+
+nvm ls
+
+
+
+[module install]
+npx create-react-app [project-name] --template typescript
+cd [project-name]
+npm i -D concurrently cross-env electron electron-builder wait-on
+npm i electron-is-dev
+
+
+
+[배포]
+npm run make
+
+npm init
+
+
+[package.json]
+...
+"main": "./public/electron.js",
+"homepage": "./",
+...
+"scripts": {
+	"react-start": "react-scripts start",
+	"react-build": "react-scripts build",
+	"react-test": "react-scripts test",
+	"react-eject": "react-scripts eject",
+	"start-renderer": "cross-env BROWSER=none npm run react-start",
+	"start-main": "electron .",
+	"compile-main": "tsc ./public/electron.ts",
+	"start-main-after-renderer": "wait-on http://localhost:3000 && npm run start-main",
+	"dev": "npm run compile-main && concurrently -n renderer, main 'npm:start-renderer' 'npm:start-main-after-renderer'",
+	"pack": "npm run compile-main && npm run react-build && electron-builder --dir",
+	"build": "npm run compile-main && npm run react-build && electron-builder build",
+	"build:osx": "npm run build -- --mac",
+	"build:linux": "npm run build -- --linux",
+	"build:win": "npm run build -- --win",
+	"predist": "npm run compile-main"
+}
+...
+"build": {
+    "productName": {프로젝트 명},
+    "appId": {App ID},
+    "asar": true,
+    "protocols": { // 딥링크 시 사용 됨
+      "name": {프로젝트 명},
+      "schemes": [
+        {App name}
+      ]
+    },
+    "mac": {
+      "target": [
+        "default"
+      ]
+    },
+    "dmg": {
+      "title": "tournant"
+    },
+    "win": {
+      "target": [
+        "zip",
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm",
+        "zip",
+        "tar.gz"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": false,
+      "installerLanguages": [
+        "en_US",
+        "ko_KR"
+      ],
+      "language": "1042"
+    },
+    "directories": {
+      "output": "dist/",
+      "app": "."
+    }
+  }
+
+
+
+ npm run dev
+
+
+
+
+
+[빌드 파일만 생성]
+npm run pack
+
+[필드 후 패킹까지 진행]
+npm run build
+
+[os별 빌드 script - dist폴더에 생성]
+
+```sh
+npm run build:osx
+
+npm run build:linux
+
+npm run build:win
+```
