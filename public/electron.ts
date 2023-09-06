@@ -9,12 +9,15 @@ const BASE_URL = 'http://localhost:3000';
 let mainWindow: BrowserWindow | null;
 
 function createMainWindow(): void {
+    console.log("=======================");
+    console.log(path.join(__dirname, "preload.ts"));
     mainWindow = new BrowserWindow({
-    width: 1920,
-    height: 1080,
-    webPreferences: {
+      width: 800,
+      height: 600,
+      webPreferences: {
       contextIsolation: true,
-      nodeIntegration: true,
+      nodeIntegration: false,
+      preload: path.join(__dirname, "preload.ts"),
     },
   });
 
@@ -30,7 +33,7 @@ function createMainWindow(): void {
 
     mainWindow.webContents.openDevTools();
   } else {
-    mainWindow.loadFile(path.join(__dirname, '../build/index.html'));
+    mainWindow.loadFile(path.join(__dirname, '../../build/index.html'));
   }
 
   mainWindow.on('closed', (): void => {
@@ -38,7 +41,6 @@ function createMainWindow(): void {
   });
 }
 
-app.whenReady
 app.on('ready', (): void => {
   createMainWindow();
 });

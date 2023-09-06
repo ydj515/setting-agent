@@ -1,5 +1,12 @@
-import React, { useState } from 'react';
-// const { ipcRenderer } = window.require('electron');
+import React, { useState, useEffect } from 'react';
+
+declare global {
+  interface Window {
+    electron: {
+      doThing: () => void;
+    };
+  }
+}
 
 function App() {
   const [selectedVersion, setSelectedVersion] = useState<string>("");
@@ -11,11 +18,11 @@ function App() {
   };
 
   const handleInstallClick = () => {
-//    ipcRenderer.send('install-java', "aaa");
+    window.electron.doThing();
   };
 
   const handleSetEnvClick = () => {
-//    ipcRenderer.send('set-env');
+    // ipcRenderer.send('set-env');
   };
 
   const handleGoBackClick = () => {

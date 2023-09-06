@@ -7,12 +7,15 @@ var exec = require('child_process').exec;
 var BASE_URL = 'http://localhost:3000';
 var mainWindow;
 function createMainWindow() {
+    console.log("=======================");
+    console.log(path.join(__dirname, "preload.ts"));
     mainWindow = new electron_1.BrowserWindow({
-        width: 1920,
-        height: 1080,
+        width: 800,
+        height: 600,
         webPreferences: {
             contextIsolation: true,
-            nodeIntegration: true
+            nodeIntegration: false,
+            preload: path.join(__dirname, "preload.ts")
         }
     });
     mainWindow.once('ready-to-show', function () {
@@ -26,13 +29,12 @@ function createMainWindow() {
         mainWindow.webContents.openDevTools();
     }
     else {
-        mainWindow.loadFile(path.join(__dirname, '../build/index.html'));
+        mainWindow.loadFile(path.join(__dirname, '../../build/index.html'));
     }
     mainWindow.on('closed', function () {
         mainWindow = null;
     });
 }
-electron_1.app.whenReady;
 electron_1.app.on('ready', function () {
     createMainWindow();
 });
