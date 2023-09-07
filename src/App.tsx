@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
+import VersionChecker from "./component/VersionChecker";
 
+// on: (channel: string, func: (...args: any[]) => void) => () => void;
 declare global {
   interface Window {
     electron: {
-      doThing: (channelName: string, version: string) => void;
+      sendMessage: (channelName: string, version: string) => void;
+     
     };
   }
 }
@@ -18,11 +21,11 @@ function App() {
   };
 
   const handleInstallClick = (version: string) => {
-    window.electron.doThing("install-java", version);
+    window.electron.sendMessage("install-java", version);
   };
 
   const handleSetEnvClick = (version: string) => {
-    window.electron.doThing('set-env', version);
+    window.electron.sendMessage("set-env", version);
   };
 
   const handleGoBackClick = () => {
@@ -39,6 +42,7 @@ function App() {
 
   return (
     <div>
+      <VersionChecker />
       {selectedVersion === "" ? (
         <button onClick={() => handleVersionSelect("java")}>java</button>
       ) : (
@@ -47,14 +51,22 @@ function App() {
           <button onClick={handleGoMainListClick}>첫 화면으로 가기</button>
           {selectedVersion === "java" ? (
             <div>
-              <button onClick={() => handleVersionSelect("java8")}>java8</button>
-              <button onClick={() => handleVersionSelect("java17")}>java17</button>
+              <button onClick={() => handleVersionSelect("java8")}>
+                java8
+              </button>
+              <button onClick={() => handleVersionSelect("java17")}>
+                java17
+              </button>
             </div>
           ) : null}
           {selectedVersion === "java8" || selectedVersion === "java17" ? (
             <div>
-              <button onClick={() => handleInstallClick(selectedVersion)}>install</button>
-              <button onClick={() => handleSetEnvClick(selectedVersion)}>set env</button>
+              <button onClick={() => handleInstallClick(selectedVersion)}>
+                install
+              </button>
+              <button onClick={() => handleSetEnvClick(selectedVersion)}>
+                set env
+              </button>
             </div>
           ) : null}
         </div>
