@@ -10,14 +10,14 @@ let mainWindow: BrowserWindow | null;
 
 function createMainWindow(): void {
     console.log("=======================");
-    console.log(path.join(__dirname, "preload.ts"));
+    console.log(path.join(__dirname, "preload.js"));
     mainWindow = new BrowserWindow({
       width: 800,
       height: 600,
       webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
-      preload: path.join(__dirname, "preload.ts"),
+      preload: path.join(__dirname, "preload.js"),
     },
   });
 
@@ -56,17 +56,31 @@ app.on('activate', (): void => {
 });
 
 // React 앱으로부터 Java 설치 요청 수신
-ipcMain.on('install-java', () => {
+ipcMain.on('install-java', (event, version) => {
+  // 여기서 version을 사용하여 실행할 파일 경로를 결정합니다.
+  let filePath;
+  console.log(version);
 
-    console.log("aaaaaa");
-  const installProcess = exec('path_to_your_installer.exe');
+  let versionNum = version.match(/\d+/)?.[0] || '';
+
+  if (!isNaN(Number(versionNum))) {
+    filePath = path.join(__dirname, `resources/java/${versionNum}/java${versionNum}-installer.exe`);
+    console.log(filePath);
+  } else {
+    console.error('지원하지 않는 Java 버전입니다.');
+    return;
+  }
+
+  const installProcess = exec(filePath);
 
   installProcess.stdout.on('data', (data: string) => {
     console.log(`stdout: ${data}`);
+    event.sender.send('install-java-response', data);
   });
 
   installProcess.stderr.on('data', (data: string) => {
     console.error(`stderr: ${data}`);
+    event.sender.send('install-java-response', data);
   });
 
   installProcess.on('close', (code: number) => {
@@ -76,6 +90,7 @@ ipcMain.on('install-java', () => {
     } else {
       console.error('Java 설치 중 오류가 발생했습니다.');
     }
+    event.sender.send('install-java-response', { code });
   });
 });
 

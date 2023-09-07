@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 declare global {
   interface Window {
     electron: {
-      doThing: () => void;
+      doThing: (channelName: string, version: string) => void;
     };
   }
 }
@@ -17,12 +17,12 @@ function App() {
     setSelectedVersion(version !== selectedVersion ? version : "");
   };
 
-  const handleInstallClick = () => {
-    window.electron.doThing();
+  const handleInstallClick = (version: string) => {
+    window.electron.doThing("install-java", version);
   };
 
-  const handleSetEnvClick = () => {
-    // ipcRenderer.send('set-env');
+  const handleSetEnvClick = (version: string) => {
+    window.electron.doThing('set-env', version);
   };
 
   const handleGoBackClick = () => {
@@ -53,8 +53,8 @@ function App() {
           ) : null}
           {selectedVersion === "java8" || selectedVersion === "java17" ? (
             <div>
-              <button onClick={() => handleInstallClick()}>install</button>
-              <button onClick={() => handleSetEnvClick()}>set env</button>
+              <button onClick={() => handleInstallClick(selectedVersion)}>install</button>
+              <button onClick={() => handleSetEnvClick(selectedVersion)}>set env</button>
             </div>
           ) : null}
         </div>
