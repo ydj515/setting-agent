@@ -6,7 +6,6 @@ declare global {
   interface Window {
     electron: {
       sendMessage: (channelName: string, version: string) => void;
-     
     };
   }
 }
@@ -42,7 +41,6 @@ function App() {
 
   return (
     <div>
-      <VersionChecker />
       {selectedVersion === "" ? (
         <button onClick={() => handleVersionSelect("java")}>java</button>
       ) : (
@@ -71,6 +69,8 @@ function App() {
           ) : null}
         </div>
       )}
+
+      <VersionChecker />
     </div>
   );
 }

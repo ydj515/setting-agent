@@ -2,7 +2,6 @@ import React, { Component } from "react";
 
 const handleInstallClick = () => {
   const test = window.electron.sendMessage("check-version");
-  console.log(test);
 };
 
 class VersionChecker extends Component {
@@ -14,31 +13,50 @@ class VersionChecker extends Component {
         javaHome: undefined,
         classPath: undefined,
         path: undefined,
+        dirList: [],
       },
     };
 
     console.log("----");
+  }
+
+  updateVersion = (versionInfo) => {
+    this.setState({
+      versionInfo: versionInfo,
+    });
+  };
+
+  componentWillMount() {
     window.electron.on("ipc-test", (res) => {
-      console.log(res);
+      this.updateVersion(res);
     });
   }
 
-  componentDidMount() {}
-
-  componentWillUnmount() {
-    // 컴포넌트가 언마운트될 때 이벤트 리스너를 제거합니다.
+  componentDidMount() {
+    const test = window.electron.sendMessage("check-version");
   }
 
   render() {
+    const { versionInfo } = this.state;
     return (
       <div>
-        <button onClick={handleInstallClick}>버전확인</button>
+        <hr></hr>
+        <button onClick={handleInstallClick}>reload</button>
         <h2> JavaVersion Checker </h2>
-
-        <h3> JAVA Install List </h3>
-        <ul>
-          <li> zz </li>
-        </ul>
+        <div>
+          <h4> --- javaHome ---</h4>
+          <div>{versionInfo.javaHome}</div>
+          <h4> --- classPath ---</h4>
+          <div>{versionInfo.classPath}</div>
+          <h4> --- path ---</h4>
+          <div>{versionInfo.envPath}</div>
+          <h4> --- dirList ---</h4>
+          <div>
+            {versionInfo.dirList.map((dir, index) => (
+              <div key={index}>{dir}</div>
+            ))}
+          </div>
+        </div>
       </div>
     );
   }
