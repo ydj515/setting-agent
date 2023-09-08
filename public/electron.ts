@@ -1,9 +1,11 @@
 import * as path from "path";
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import * as isDev from "electron-is-dev";
 import "./ipcHandler";
 
-const BASE_URL = "http://localhost:3000";
+const { exec, spawn } = require('child_process');
+
+const BASE_URL = 'http://localhost:3000';
 
 let mainWindow: BrowserWindow | null;
 
@@ -50,4 +52,65 @@ app.on("activate", (): void => {
   if (mainWindow === null) {
     createMainWindow();
   }
+});
+
+// React 앱으로부터 Java 설치 요청 수신
+ipcMain.on('install-java', (event, version) => {
+  // 여기서 version을 사용하여 실행할 파일 경로를 결정합니다.
+  let filePath;
+  console.log(version);
+
+  let versionNum = version.match(/\d+/)?.[0] || '';
+
+  if (!isNaN(Number(versionNum))) {
+    filePath = path.join(__dirname, `resources/java/${versionNum}/java${versionNum}-installer.exe`);
+    console.log(filePath);
+  } else {
+    console.error('지원하지 않는 Java 버전입니다.');
+    return;
+  }
+
+  const installProcess = exec(filePath);
+
+  installProcess.stdout.on('data', (data: string) => {
+    console.log(`stdout: ${data}`);
+    event.sender.send('install-java-response', data);
+  });
+
+  installProcess.stderr.on('data', (data: string) => {
+    console.error(`stderr: ${data}`);
+    event.sender.send('install-java-response', data);
+  });
+
+  installProcess.on('close', (code: number) => {
+    console.log(`설치 프로세스 종료 코드: ${code}`);
+    if (code === 0) {
+      console.log('Java 설치가 완료되었습니다.');
+    } else {
+      console.error('Java 설치 중 오류가 발생했습니다.');
+    }
+    event.sender.send('install-java-response', { code });
+  });
+});
+
+// React 앱으로부터 환경변수 설정 요청 수신
+ipcMain.on('set-env', (event, version) => {
+  const psScriptPath = path.join(__dirname, '../test.bat');
+  console.log(psScriptPath);
+  const variableName = "aaa"; // 환경 변수 이름
+  const variableValue = "bbb"; // 환경 변수 값
+
+  const command = `"${psScriptPath}" "${variableName}" "${variableValue}"`; // 두 개의 변수를 전달합니다.
+
+
+  exec(command,
+    (error: any, stdout: any, stderr: any) => {
+      if (error) {
+        console.error(`Error executing PowerShell script: ${error.message}`);
+        return;
+      }
+  
+      console.log(`PowerShell script output: ${stdout}`);
+    }
+  );
 });
