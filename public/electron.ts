@@ -3,7 +3,7 @@ import { app, BrowserWindow, ipcMain } from "electron";
 import * as isDev from "electron-is-dev";
 import "./ipcHandler";
 
-const { exec, spawn } = require('child_process');
+const { exec } = require('child_process');
 
 const BASE_URL = 'http://localhost:3000';
 
@@ -95,14 +95,16 @@ ipcMain.on('install-java', (event, version) => {
 
 // React 앱으로부터 환경변수 설정 요청 수신
 ipcMain.on('set-env', (event, version) => {
-  const psScriptPath = path.join(__dirname, '../test.bat');
-  console.log(psScriptPath);
+  const batchFilePath = path.join(__dirname, '../set-env.bat');
+
+  let versionNum = version.match(/\d+/)?.[0] || '';
+
   const variableName = "aaa"; // 환경 변수 이름
-  const variableValue = "bbb"; // 환경 변수 값
+  const variableValue = `C:/Program Files/Java/jdk-${versionNum}`; // 환경 변수 값
 
-  const command = `"${psScriptPath}" "${variableName}" "${variableValue}"`; // 두 개의 변수를 전달합니다.
-
-
+  const command = `${batchFilePath} ${variableName} ${variableValue}`;
+  console.log('=============');
+  console.log(command);
   exec(command,
     (error: any, stdout: any, stderr: any) => {
       if (error) {

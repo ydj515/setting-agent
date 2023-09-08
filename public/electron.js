@@ -4,7 +4,7 @@ var path = require("path");
 var electron_1 = require("electron");
 var isDev = require("electron-is-dev");
 require("./ipcHandler");
-var _a = require('child_process'), exec = _a.exec, spawn = _a.spawn;
+var exec = require('child_process').exec;
 var BASE_URL = 'http://localhost:3000';
 var mainWindow;
 function createMainWindow() {
@@ -82,11 +82,14 @@ electron_1.ipcMain.on('install-java', function (event, version) {
 });
 // React 앱으로부터 환경변수 설정 요청 수신
 electron_1.ipcMain.on('set-env', function (event, version) {
-    var psScriptPath = path.join(__dirname, '../test.bat');
-    console.log(psScriptPath);
+    var _a;
+    var batchFilePath = path.join(__dirname, '../set-env.bat');
+    var versionNum = ((_a = version.match(/\d+/)) === null || _a === void 0 ? void 0 : _a[0]) || '';
     var variableName = "aaa"; // 환경 변수 이름
-    var variableValue = "bbb"; // 환경 변수 값
-    var command = "\"".concat(psScriptPath, "\" \"").concat(variableName, "\" \"").concat(variableValue, "\""); // 두 개의 변수를 전달합니다.
+    var variableValue = "C:/Program Files/Java/jdk-".concat(versionNum); // 환경 변수 값
+    var command = "".concat(batchFilePath, " ").concat(variableName, " ").concat(variableValue);
+    console.log('=============');
+    console.log(command);
     exec(command, function (error, stdout, stderr) {
         if (error) {
             console.error("Error executing PowerShell script: ".concat(error.message));
